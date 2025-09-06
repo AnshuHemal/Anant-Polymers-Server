@@ -1,5 +1,5 @@
 {
-  "name": "anant-polymers-contact",
+  "name": "anant-server",
   "version": "1.0.0",
   "description": "Contact form with OTP verification for Anant Polymers",
   "main": "server.js",

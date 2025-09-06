@@ -6,28 +6,23 @@ const crypto = require('crypto');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Store OTPs temporarily (in production, use Redis or database)
 const otpStore = new Map();
 
-// Email configuration
 const transporter = nodemailer.createTransport({
-  service: 'gmail', // You can change this to your preferred email service
+  service: 'gmail', 
   auth: {
-    user: process.env.EMAIL_USER || 'anantpolymersofficial@gmail.com', // Replace with your email
-    pass: process.env.EMAIL_PASS || 'qtppopitxeqlstzg' // Replace with your app password
+    user: process.env.EMAIL_USER, 
+    pass: process.env.EMAIL_PASS 
   }
 });
 
-// Generate 6-digit OTP
 function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Send OTP email
 async function sendOTPEmail(email, otp) {
   const mailOptions = {
     from: 'admin@anantpolymers.com',
@@ -60,11 +55,10 @@ async function sendOTPEmail(email, otp) {
   }
 }
 
-// Send contact form email
 async function sendContactEmail(formData) {
   const mailOptions = {
     from: 'noreply@anantpolymers.com',
-    to: 'sales@anantpolymers.com', // Your business email
+    to: 'sales@anantpolymers.com', 
     subject: `Contact Form: ${formData.subject} - Anant Polymers`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -95,11 +89,10 @@ async function sendContactEmail(formData) {
   }
 }
 
-// Send enquiry form email
 async function sendEnquiryEmail(enquiryData) {
   const mailOptions = {
     from: 'noreply@anantpolymers.com',
-    to: 'sales@anantpolymers.com', // Your business email
+    to: 'sales@anantpolymers.com', 
     subject: 'New Enquiry - Anant Polymers',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -131,9 +124,7 @@ async function sendEnquiryEmail(enquiryData) {
   }
 }
 
-// Routes
 
-// Send OTP
 app.post('/api/send-otp', async (req, res) => {
   try {
     const { email } = req.body;
@@ -142,18 +133,15 @@ app.post('/api/send-otp', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Email is required' });
     }
 
-    // Generate OTP
     const otp = generateOTP();
     const otpId = crypto.randomUUID();
     
-    // Store OTP with expiration (10 minutes)
     otpStore.set(otpId, {
       otp,
       email,
-      expiresAt: Date.now() + 10 * 60 * 1000 // 10 minutes
+      expiresAt: Date.now() + 10 * 60 * 1000 
     });
 
-    // Send OTP email
     const emailSent = await sendOTPEmail(email, otp);
     
     if (emailSent) {
@@ -177,7 +165,6 @@ app.post('/api/send-otp', async (req, res) => {
   }
 });
 
-// Verify OTP
 app.post('/api/verify-otp', async (req, res) => {
   try {
     const { otpId, otp } = req.body;
@@ -213,7 +200,6 @@ app.post('/api/verify-otp', async (req, res) => {
       });
     }
 
-    // OTP is valid, mark as verified
     storedData.verified = true;
     otpStore.set(otpId, storedData);
 
@@ -230,7 +216,6 @@ app.post('/api/verify-otp', async (req, res) => {
   }
 });
 
-// Submit contact form
 app.post('/api/submit-contact', async (req, res) => {
   try {
     const { otpId, name, email, subject, message } = req.body;
@@ -259,11 +244,9 @@ app.post('/api/submit-contact', async (req, res) => {
       });
     }
 
-    // Send contact form email
     const emailSent = await sendContactEmail({ name, email, subject, message });
     
     if (emailSent) {
-      // Clean up OTP
       otpStore.delete(otpId);
       
       res.json({ 
@@ -285,7 +268,6 @@ app.post('/api/submit-contact', async (req, res) => {
   }
 });
 
-// Submit enquiry form (popup)
 app.post('/api/submit-enquiry', async (req, res) => {
   try {
     const { name, email, phone, product, message } = req.body;
@@ -297,7 +279,6 @@ app.post('/api/submit-enquiry', async (req, res) => {
       });
     }
 
-    // Send enquiry email
     const emailSent = await sendEnquiryEmail({ name, email, phone, product, message });
     
     if (emailSent) {
@@ -320,7 +301,6 @@ app.post('/api/submit-enquiry', async (req, res) => {
   }
 });
 
-// Clean up expired OTPs every 5 minutes
 setInterval(() => {
   const now = Date.now();
   for (const [otpId, data] of otpStore.entries()) {
