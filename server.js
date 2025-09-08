@@ -2,12 +2,42 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
 const crypto = require('crypto');
+const helmet = require("helmet");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+
+app.use((req, res, next) => {
+  res.locals.nonce = crypto.randomBytes(16).toString("base64");
+  next();
+});
+
+app.use(
+  helmet.contentSecurityPolicy({
+    useDefaults: true,
+    directives: {
+      "default-src": ["'self'"],
+      "script-src": [
+        "'self'",
+        (req, res) => `'nonce-${res.locals.nonce}'`, // allow scripts with this nonce
+        "https://cdnjs.cloudflare.com",
+        "https://cdn.jsdelivr.net",
+      ],
+      "style-src": [
+        "'self'",
+        "'unsafe-inline'", // keep this for now since you have inline CSS
+        "https://fonts.googleapis.com",
+        "https://cdn.jsdelivr.net",
+      ],
+      "font-src": ["'self'", "https://fonts.gstatic.com"],
+      "img-src": ["'self'", "data:", "https:"],
+      "connect-src": ["'self'", "https://anant-server.vercel.app"], // allow API requests
+    },
+  })
+);
 
 const otpStore = new Map();
 
