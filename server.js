@@ -6,7 +6,13 @@ const crypto = require('crypto');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+const corsOptions = {
+  origin: 'https://anantpolymers.com', // allow only this domain
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // allowed HTTP methods
+  credentials: true, // allow cookies if needed
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 const otpStore = new Map();
