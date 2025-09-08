@@ -17,27 +17,23 @@ app.use((req, res, next) => {
 
 app.use(
   helmet.contentSecurityPolicy({
-    useDefaults: true,
     directives: {
-      "default-src": ["'self'"],
-      "script-src": [
+      defaultSrc: ["'self'"],
+      scriptSrc: [
         "'self'",
-        (req, res) => `'nonce-${res.locals.nonce}'`, // allow scripts with this nonce
-        "https://cdnjs.cloudflare.com",
-        "https://cdn.jsdelivr.net",
+        "https://anantpolymers.com",
+        "https://translate.google.com",
+        "https://translate.googleapis.com",
+        (req, res) => `'nonce-${res.locals.nonce}'`
       ],
-      "style-src": [
-        "'self'",
-        "'unsafe-inline'", // keep this for now since you have inline CSS
-        "https://fonts.googleapis.com",
-        "https://cdn.jsdelivr.net",
-      ],
-      "font-src": ["'self'", "https://fonts.gstatic.com"],
-      "img-src": ["'self'", "data:", "https:"],
-      "connect-src": ["'self'", "https://anant-server.vercel.app"], // allow API requests
-    },
+      styleSrc: ["'self'", "https://fonts.googleapis.com", "'unsafe-inline'"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "https://anant-server.vercel.app"]
+    }
   })
 );
+
 
 const otpStore = new Map();
 
