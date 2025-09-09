@@ -14,11 +14,11 @@ app.use(express.static(path.join(__dirname)));
 app.use((req, res, next) => {
   res.setHeader('Content-Security-Policy', 
     "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://translate.google.com https://static.cloudflareinsights.com https://cdn.prod.website-files.com; " +
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com https://static.cloudflareinsights.com https://cdn.prod.website-files.com; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.cdnfonts.com https://www.gstatic.com; " +
     "img-src 'self' data: https: blob:; " +
-    "font-src 'self' https://fonts.gstatic.com; " +
-    "connect-src 'self' https://anant-server.vercel.app; " +
+    "font-src 'self' https: data:; " +
+    "connect-src 'self' https://anant-server.vercel.app https://translate.googleapis.com https://translate-pa.googleapis.com; " +
     "frame-src 'self' https://translate.google.com; " +
     "object-src 'none'; " +
     "base-uri 'self'; " +
