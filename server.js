@@ -2,13 +2,38 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
 const crypto = require('crypto');
-
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Serve static files
+app.use(express.static(path.join(__dirname)));
+
+// Set CSP headers
+app.use((req, res, next) => {
+  res.setHeader('Content-Security-Policy', 
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://translate.google.com https://static.cloudflareinsights.com https://cdn.prod.website-files.com; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "img-src 'self' data: https: blob:; " +
+    "font-src 'self' https://fonts.gstatic.com; " +
+    "connect-src 'self' https://anant-server.vercel.app; " +
+    "frame-src 'self' https://translate.google.com; " +
+    "object-src 'none'; " +
+    "base-uri 'self'; " +
+    "form-action 'self';"
+  );
+  next();
+});
+
 app.use(cors());
 app.use(express.json());
+
+// Serve main page
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 const otpStore = new Map();
 
